@@ -3,17 +3,18 @@ A program to navigate your project folder <br />
 Requirements: <br />
   To run, instead of typing "./psearch", use ". ./psearch", so that it will run in the current bash session <br />
   Also, you projects folder should be in this format: <br />
-    ```
-   |-- [project-folder]
-       |-- [language1]  
-           |-- [file1]  
-           |-- [file2]  
-       |-- [language2]  
-           |-- [file1]  
-           |-- [file3]  
-       |-- [language3]  
-           |-- [file1]  
-      ```
+  Markup :  
+            > [project-folder]
+            >> [language1]  
+            >>> [file1]  
+            >>> [file2]  
+            >> [language2]  
+            >>> [file1]  
+            >>> [file2]
+            >>> [file3]  
+            >> [language3]  
+            >>> [file1]  
+
 
 
 Usage: <br />
