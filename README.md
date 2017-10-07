@@ -4,18 +4,18 @@ Requirements: <br />
   To run, instead of typing "./psearch", use ". ./psearch", so that it will run in the current bash session <br />
   Also, you projects folder should be in this format: <br />
   <pre>
-    └── [project-folder] <br />
-        ├── [language1]  <br />
-        |   ├── [file1]  <br />
-        |   └── [file2]  <br />
+    └── [project-folder]
+        ├── [language1] 
+        |   ├── [file1] 
+        |   └── [file2] 
         |
-        ├── [language2]  <br />
-        |   ├── [file1]  <br />
-        |   ├── [file2]  <br />
-        |   └── [file3]  <br />
+        ├── [language2] 
+        |   ├── [file1] 
+        |   ├── [file2] 
+        |   └── [file3] 
         |
-        └── [language3   <br />
-            └── [file1]  <br />
+        └── [language3  
+            └── [file1] 
   </pre>
 
 
