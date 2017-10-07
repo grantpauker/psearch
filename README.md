@@ -5,18 +5,15 @@ Requirements: <br />
   Also, you projects folder should be in this format: <br />
   <pre>
     └── [project-folder]
-        ├── [language1] 
-        |   ├── [file1] 
-        |   └── [file2] 
-        |
-        ├── [language2] 
-        |   ├── [file1] 
-        |   ├── [file2] 
-        |   └── [file3] 
-        |
-        └── [language3  
-            └── [file1] 
-  </pre>
+        ├── [language1]
+        |   ├── [file1]
+        |   └── [file2]
+        ├── [language2]
+        |   ├── [file1]
+        |   ├── [file2]
+        |   └── [file3]
+        └── [language3]  
+            └── [file1]</pre>
 
 
 Usage: <br />
