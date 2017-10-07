@@ -3,6 +3,7 @@ A program to navigate your project folder <br />
 Requirements: <br />
   To run, instead of typing "./psearch", use ". ./psearch", so that it will run in the current bash session <br />
   Also, you projects folder should be in this format: <br />
+    ```
     |-- [project-folder] <br />
        |-- [language1]  <br />
            |-- [file1]  <br />
@@ -12,6 +13,7 @@ Requirements: <br />
            |-- [file3]  <br />
        |-- [language3]  <br />
            |-- [file1]  <br />
+      ```
 
 
 Usage: <br />
