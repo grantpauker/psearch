@@ -1,0 +1,108 @@
+#!/bin/bash
+folder="$folder" #Your project folder
+basefolder=$(basename $folder)
+if [ "$1" = "-help" ] #Listing
+then
+echo "psearch is a program to naviagte your project folder: \"$folder\""
+echo "Here is a list of its commands:"
+echo "  psearch -l [language]        |  Lists all projects of a given language,"
+echo "                               -  leave blank to just list languages"
+echo "  psearch -a [language]        |  Add a new language folder"
+echo "  psearch -c [language] [name] |  Creates a new project in the given"
+echo "                               -  language with the given name"
+echo "  psearch [project]            |  Finds a project with the given name"
+echo "                               -  and goes to that directory"
+
+elif [ "$1" = "-l" ] #Listing
+then
+  if [ ! -d "$folder/$2" ]
+  then
+    echo "The language \"$2\" was not found"
+    return
+  fi
+  found=`find "$folder/$2" -maxdepth 1 -type d | grep -v .git`
+  mapfile -t array <<< "$found"
+  for item in ${array[@]:1}
+  do
+    item=$(basename $(dirname $item))/$(basename $item)
+    echo "$item"
+  done
+
+elif [ "$1" = "-a" ] #Adding a new language folder
+then
+  if [ -d "$folder/$2" ]
+  then
+    echo "The language \"$2\" already exists"
+    echo "Going to \"$basefolder/$2\""
+    cd $folder/$2
+    return
+  else
+    mkdir "$folder/$2"
+    echo "Created a folder for the language \"$2\""
+    echo "Going to \"$basefolder/$2\""
+    cd $folder/$2
+    return
+  fi
+
+elif [ "$1" = "-c" ] #Crating a new project
+then
+  if [ "$3" = "" ]
+  then
+    echo "Please specify a project name"
+    return
+  fi
+  if [ -d "$folder/$2/$3" ]
+  then
+    echo "The project \"$2\" already exits"
+    cd $folder/$2/$3
+    return
+  else
+    mkdir "$folder/$2/$3"
+    case "$2" in
+    bash) touch $folder/$2/$3/$3
+        ;;
+    c) touch $folder/$2/$3/$3.c
+        ;;
+    python) touch $folder/$2/$3/$3.py
+        ;;
+    javascript)
+        touch $folder/$2/$3/$3.js
+        touch $folder/$2/$3/index.html
+        touch $folder/$2/$3/style.css
+        ;;
+    esac
+    echo "Created the project \"$2/$3\""
+    echo "Going to \"$2/$3\""
+    cd $folder/$2/$3
+    return
+  fi
+
+else
+  found=`find $folder -type d | grep -v .git | grep './'$1'$'`
+  found=${found//[.]\//$folder/}
+  len=`echo "$found"| wc -l`
+  mapfile -t array <<< "$found"
+  if [ "$found" = "" ]
+  then
+  echo "No projects with name \"$1\" found"
+  echo "Try finding a project using \"psearch -l [language]\"..."
+  echo "Or create a new project using \"psearch -c [language] [name]\""
+  elif [ "$len" -gt "1" ]
+  then
+    echo "Multiple instances found, please select a language..."
+    i=0
+    for item in ${array[@]}
+    do
+      i=$((i+1))
+      item=$(basename $(dirname $item))
+      echo "[$i]: $item"
+    done
+    read -p "Selection: " choice
+    choice=$((choice-1))
+    echo "Going to \"$(basename $(dirname ${array[$choice]}))/$(basename ${array[$choice]})\""
+    cd ${array[$choice]}
+  else
+    echo "Going to \"$(basename $(dirname $found))/$(basename $found)\""
+    cd $found
+  fi
+fi
