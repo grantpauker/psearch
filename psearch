@@ -1,22 +1,24 @@
 #!/bin/bash
-folder="$folder" #Your project folder
+folder="/home/god/projects" #Your project folder
 basefolder=$(basename $folder)
 if [ "$folder" = "" ]
 then
   echo "Please specify a project folder"
   return
 fi
-if [ "$1" = "-help" ] #Listing
+
+if [ "$1" = "-help" ] || [ "$1" = "" ] #Help
 then
 echo "psearch is a program to naviagte your project folder: \"$folder\""
 echo "Here is a list of its commands:"
-echo "  psearch [project]            |  Finds a project with the given name"
-echo "                               -  and goes to that directory"
-echo "  psearch -l [language]        |  Lists all projects of a given language,"
-echo "                               -  leave blank to just list languages"
-echo "  psearch -c [language] [name] |  Creates a new project in the given"
-echo "                               -  language with the given name"
-echo "  psearch -a [language]        |  Add a new language folder"
+echo "  psearch [project]               |  Finds a project with the given name"
+echo "                                  -  and goes to that directory"
+echo "  psearch -l [language]           |  Lists all projects of a given language,"
+echo "                                  -  leave blank to just list languages"
+echo "  psearch -c [language] [project] |  Creates a new project in the given"
+echo "             [file]               -  language with the given names"
+echo "  psearch -a [language]           |  Add a new language folder"
+echo "  psearch -help [language]        |  Brings up this message"
 
 elif [ "$1" = "-l" ] #Listing
 then
@@ -49,7 +51,7 @@ then
     return
   fi
 
-elif [ "$1" = "-c" ] #Crating a new project
+elif [ "$1" = "-c" ] #Creating a new project
 then
   if [ "$3" = "" ]
   then
@@ -58,31 +60,97 @@ then
   fi
   if [ -d "$folder/$2/$3" ]
   then
-    echo "The project \"$2\" already exits"
+    echo "The project \"$2/$3\" already exits"
     cd $folder/$2/$3
     return
   else
     mkdir "$folder/$2/$3"
+    if [ "$4" = "" ]
+    then
+      file_name="$3"
+    else
+      file_name=`echo $4 | sed 's/\.[^.]*$//'`
+    fi
     case "$2" in
-    bash) touch $folder/$2/$3/$3
+    bash) touch $folder/$2/$3/$file_name
         ;;
-    c) touch $folder/$2/$3/$3.c
+    c) touch $folder/$2/$3/$file_name.c
         ;;
-    python) touch $folder/$2/$3/$3.py
+    python) touch $folder/$2/$3/$file_name.py
         ;;
     javascript)
-        touch $folder/$2/$3/$3.js
+        touch $folder/$2/$3/$file_name.js
         touch $folder/$2/$3/index.html
         touch $folder/$2/$3/style.css
         ;;
     esac
-    echo "Created the project \"$2/$3\""
+    echo "Created the project \"$2/$3/$file_name\""
     echo "Going to \"$2/$3\""
     cd $folder/$2/$3
     return
   fi
 
-else
+elif [ "$1" = "-r" ] #Removing a project
+then
+  found=`find $folder -type d | grep -v .git | grep './'$2'$'`
+  found=${found//[.]\//$folder/}
+  len=`echo "$found"| wc -l`
+  mapfile -t array <<< "$found"
+  if [ "$found" = "" ]
+  then
+  echo "No projects with name \"$2\" found"
+  echo "Try finding a project using \"psearch -l [language]\"..."
+  elif [ "$len" -gt "1" ]
+  then
+    echo "Multiple instances found, please select a language..."
+    i=0
+    for item in ${array[@]}
+    do
+      i=$((i+1))
+      item=$(basename $(dirname $item))
+      echo "[$i]: $item"
+    done
+    read -p "Selection: " choice
+    choice=$((choice-1))
+    echo "Count: $choice"
+    found=${array[choice]}
+    echo "Found is: $found"
+    read -p "Are you sure you want to delete \"$(basename $(dirname ${array[$choice]}))/$(basename ${array[$choice]})\" [y/n]: " are_you_sure
+    if [ "$are_you_sure" = "y" ]
+    then
+    echo "Deleting \"$(basename $(dirname ${array[$choice]}))/$(basename ${array[$choice]})\""
+
+    rm -rf $found
+    if [ "$PWD" = "$found" ]
+    then
+      cd $(dirname "$found")
+    fi
+    return
+    elif [ "$are_you_sure" = "n" ]
+    then
+    echo "Not deleting"
+    return
+    fi
+  else
+    read -p "Are you sure you want to delete \"$(basename $(dirname $found))/$(basename $found)\" [y/n]: " are_you_sure
+    if [ "$are_you_sure" = "y" ]
+    then
+      echo "Deleting \"$(basename $(dirname $found))/$(basename $found)\""
+      rm -rf $found
+      if [ "$PWD" = "$found" ]
+      then
+        cd $(dirname "$found")
+      fi
+      return
+    elif [ "$are_you_sure" = "n" ]
+      then
+      echo "Not deleting"
+      return
+    fi
+  fi
+
+
+else #Finding and going to a project
   found=`find $folder -type d | grep -v .git | grep './'$1'$'`
   found=${found//[.]\//$folder/}
   len=`echo "$found"| wc -l`
