@@ -2,6 +2,11 @@
 A program to navigate your project folder <br />
 Requirements: <br />
   To run, instead of typing "./psearch", use ". ./psearch", so that it will run in the current bash session <br />
+  To add autocompletion and an alias for psearch, run the command:
+  ```
+  echo "alias psearch='. [location-of-psearch-file]'" >> ~/.bashrc && file mv autocomplete /etc/bash_completion.d/psearch
+  ```
+  Make sure to specify your project folder in the psearch and autocomplete files
   Also, you projects folder should be in this format: <br />
   <pre>
     └── [project-folder]
@@ -14,10 +19,7 @@ Requirements: <br />
         |   └── [file3]
         └── [language3]  
             └── [file1]</pre>
-  To add autocompletion and an alias for psearch, run the command:
-  ```
-  echo "alias psearch='. [location-of-psearch-file]'" >> ~/.bashrc && file mv autocomplete /etc/bash_completion.d/psearch
-  ```
+  
 Usage: <br />
   ```
   psearch [project] | Finds a project with the given name and goes to that directory"
