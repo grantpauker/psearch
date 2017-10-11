@@ -1,44 +1,71 @@
 #!/bin/bash
 folder="/home/god/projects" #Your project folder
+backup_exec="/home/god/projects/bash/project-backup/backup"
 basefolder=$(basename $folder)
-if [ "$folder" = "" ]
-then
+
+if [ "$folder" = "" ]; then
   echo "Please specify a project folder"
   return
 fi
+if [ "$backup_exec" = "" ]; then
+  echo "Please specify a backup executable"
+  echo "This can be obtained from https://github.com/ruwix/project-backup"
+  return
+fi
 
-if [ "$1" = "-help" ] || [ "$1" = "" ] #Help
-then
-echo "psearch is a program to naviagte your project folder: \"$folder\""
-echo "Here is a list of its commands:"
-echo "  psearch [project]               |  Finds a project with the given name"
-echo "                                  -  and goes to that directory"
-echo "  psearch -l [language]           |  Lists all projects of a given language,"
-echo "                                  -  leave blank to just list languages"
-echo "  psearch -c [language] [project] |  Creates a new project in the given"
-echo "             [file]               -  language with the given names"
-echo "  psearch -a [language]           |  Add a new language folder"
-echo "  psearch -help [language]        |  Brings up this message"
+ps_help(){
+  echo "psearch is a program to naviagte your project folder: \"$folder\""
+  echo "Here is a list of its commands:"
+  echo "  psearch [project]               |  Finds a project with the given name"
+  echo "                                  -  and goes to that directory"
+  echo "  psearch -l [language]           |  Lists all projects of a given language,"
+  echo "                                  -  leave blank to just list languages"
+  echo "  psearch -c [language] [project] |  Creates a new project in the given"
+  echo "             [file]               -  language with the given names"
+  echo "  psearch -a [language]           |  Add a new language folder"
+  echo "  psearch -r [project]            |  Remove a project folder"
+  echo "  psearch -help [language]        |  Brings up this message"
+}
 
-elif [ "$1" = "-l" ] #Listing
-then
-  if [ ! -d "$folder/$2" ]
-  then
+ps_backup(){
+  bash $backup_exec
+}
+
+ps_list(){
+  if [ ! -d "$folder/$2" ] && [ "$2" != "languages" ]; then
     echo "The language \"$2\" was not found"
     return
   fi
-  found=`find "$folder/$2" -maxdepth 1 -type d | grep -v .git`
-  mapfile -t array <<< "$found"
-  for item in ${array[@]:1}
-  do
-    item=$(basename $(dirname $item))/$(basename $item)
-    echo "$item"
-  done
-
-elif [ "$1" = "-a" ] #Adding a new language folder
-then
-  if [ -d "$folder/$2" ]
-  then
+  if [ "$2" = "" ]; then
+    found=`find "$folder/$2" -maxdepth 2 -type d | grep -v .git`
+    mapfile -t array <<< "$found"
+    for item in ${array[@]:1}
+    do
+      if [ "$(basename $(dirname $item))" != "projects" ]; then
+        item=$(basename $(dirname $item))/$(basename $item)
+        echo "$item"
+      fi
+    done
+  elif [ "$2" = "languages" ]; then
+    found=`find "$folder" -maxdepth 1 -type d | grep -v .git`
+    mapfile -t array <<< "$found"
+    for item in ${array[@]:1}
+    do
+      item=$(basename $(dirname $item))/$(basename $item)
+      echo "$item"
+    done
+  else
+    found=`find "$folder/$2" -maxdepth 1 -type d | grep -v .git`
+    mapfile -t array <<< "$found"
+    for item in ${array[@]:1}
+    do
+      item=$(basename $(dirname $item))/$(basename $item)
+      echo "$item"
+    done
+  fi
+}
+ps_add(){
+  if [ -d "$folder/$2" ]; then
     echo "The language \"$2\" already exists"
     echo "Going to \"$basefolder/$2\""
     cd $folder/$2
@@ -50,29 +77,28 @@ then
     cd $folder/$2
     return
   fi
+}
 
-elif [ "$1" = "-c" ] #Creating a new project
-then
-  if [ "$3" = "" ]
-  then
+ps_create(){
+  if [ "$3" = "" ]; then
     echo "Please specify a project name"
     return
   fi
-  if [ -d "$folder/$2/$3" ]
-  then
+  if [ -d "$folder/$2/$3" ]; then
     echo "The project \"$2/$3\" already exits"
     cd $folder/$2/$3
     return
   else
     mkdir "$folder/$2/$3"
-    if [ "$4" = "" ]
-    then
+    if [ "$4" = "" ]; then
       file_name="$3"
     else
       file_name=`echo $4 | sed 's/\.[^.]*$//'`
     fi
     case "$2" in
     bash) touch $folder/$2/$3/$file_name
+        echo "#!/bin/bash" >> $folder/$2/$3/$file_name
+        chmod +x $folder/$2/$3/$file_name
         ;;
     c) touch $folder/$2/$3/$file_name.c
         ;;
@@ -90,18 +116,17 @@ then
     return
   fi
 
-elif [ "$1" = "-r" ] #Removing a project
-then
+}
+
+ps_remove(){
   found=`find $folder -type d | grep -v .git | grep './'$2'$'`
   found=${found//[.]\//$folder/}
   len=`echo "$found"| wc -l`
   mapfile -t array <<< "$found"
-  if [ "$found" = "" ]
-  then
+  if [ "$found" = "" ]; then
   echo "No projects with name \"$2\" found"
   echo "Try finding a project using \"psearch -l [language]\"..."
-  elif [ "$len" -gt "1" ]
-  then
+  elif [ "$len" -gt "1" ]; then
     echo "Multiple instances found, please select a language..."
     i=0
     for item in ${array[@]}
@@ -116,52 +141,44 @@ then
     found=${array[choice]}
     echo "Found is: $found"
     read -p "Are you sure you want to delete \"$(basename $(dirname ${array[$choice]}))/$(basename ${array[$choice]})\" [y/n]: " are_you_sure
-    if [ "$are_you_sure" = "y" ]
-    then
+    if [ "$are_you_sure" = "y" ]; then
     echo "Deleting \"$(basename $(dirname ${array[$choice]}))/$(basename ${array[$choice]})\""
 
     rm -rf $found
-    if [ "$PWD" = "$found" ]
-    then
+    if [ "$PWD" = "$found" ]; then
       cd $(dirname "$found")
     fi
     return
-    elif [ "$are_you_sure" = "n" ]
-    then
+    elif [ "$are_you_sure" = "n" ]; then
     echo "Not deleting"
     return
     fi
   else
     read -p "Are you sure you want to delete \"$(basename $(dirname $found))/$(basename $found)\" [y/n]: " are_you_sure
-    if [ "$are_you_sure" = "y" ]
-    then
+    if [ "$are_you_sure" = "y" ]; then
       echo "Deleting \"$(basename $(dirname $found))/$(basename $found)\""
       rm -rf $found
-      if [ "$PWD" = "$found" ]
-      then
+      if [ "$PWD" = "$found" ]; then
         cd $(dirname "$found")
       fi
       return
-    elif [ "$are_you_sure" = "n" ]
-      then
+    elif [ "$are_you_sure" = "n" ]; then
       echo "Not deleting"
       return
     fi
   fi
+}
 
-
-else #Finding and going to a project
+ps_search(){
   found=`find $folder -type d | grep -v .git | grep './'$1'$'`
   found=${found//[.]\//$folder/}
   len=`echo "$found"| wc -l`
   mapfile -t array <<< "$found"
-  if [ "$found" = "" ]
-  then
+  if [ "$found" = "" ]; then
   echo "No projects with name \"$1\" found"
   echo "Try finding a project using \"psearch -l [language]\"..."
   echo "Or create a new project using \"psearch -c [language] [name]\""
-  elif [ "$len" -gt "1" ]
-  then
+  elif [ "$len" -gt "1" ]; then
     echo "Multiple instances found, please select a language..."
     i=0
     for item in ${array[@]}
@@ -178,4 +195,22 @@ else #Finding and going to a project
     echo "Going to \"$(basename $(dirname $found))/$(basename $found)\""
     cd $found
   fi
+}
+
+if [ "$1" = "-help" ]; then #Help
+ ps_help $1 $2 $3 $4
+elif [ "$1" = "-b" ]; then #Backup
+  ps_add $1 $2 $3 $4
+elif [ "$1" = "-l" ]; then #Listing
+  ps_list $1 $2 $3 $4
+elif [ "$1" = "-a" ]; then #Adding a new language folder
+  ps_add $1 $2 $3 $4
+elif [ "$1" = "-c" ]; then #Creating a new project
+  ps_create $1 $2 $3 $4
+elif [ "$1" = "-r" ]; then #Removing a project
+  ps_remove $1 $2 $3 $4
+elif [ "$1" != "" ]; then #Finding and going to a project
+  ps_search $1 $2 $3 $4
+else #Lists a project if given no paramaters
+  ps_list $1 $2 $3 $4
 fi
