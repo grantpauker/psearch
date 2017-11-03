@@ -1,6 +1,6 @@
 #!/bin/bash
 folder="/home/god/projects" #Your project folder
-backup_exec="/home/god/projects/bash/project-backup/backup"
+backup_exec="/home/god/backups/backup"
 basefolder=$(basename $folder)
 
 if [ "$folder" = "" ]; then
@@ -9,7 +9,6 @@ if [ "$folder" = "" ]; then
 fi
 if [ "$backup_exec" = "" ]; then
   echo "Please specify a backup executable"
-  echo "This can be obtained from https://github.com/ruwix/project-backup"
   return
 fi
 
@@ -24,6 +23,8 @@ ps_help(){
   echo "             [file]               -  language with the given names"
   echo "  psearch -a [language]           |  Add a new language folder"
   echo "  psearch -r [project]            |  Remove a project folder"
+  echo "  psearch -b [project]            |  Backup your project folder"
+
   echo "  psearch -help [language]        |  Brings up this message"
 }
 
@@ -88,6 +89,8 @@ ps_create(){
     echo "The project \"$2/$3\" already exits"
     cd $folder/$2/$3
     return
+  elif [ ! -d $folder/$2 ]; then
+    echo "Language $2 does not exist"
   else
     mkdir "$folder/$2/$3"
     if [ "$4" = "" ]; then
@@ -109,6 +112,10 @@ ps_create(){
         touch $folder/$2/$3/index.html
         touch $folder/$2/$3/style.css
         ;;
+    go) touch $folder/$2/$3/$file_name.go
+        ;;
+    c++) touch $folder/$2/$3/$file_name.cpp
+	;;
     esac
     echo "Created the project \"$2/$3/$file_name\""
     echo "Going to \"$2/$3\""
@@ -200,7 +207,7 @@ ps_search(){
 if [ "$1" = "-help" ]; then #Help
  ps_help $1 $2 $3 $4
 elif [ "$1" = "-b" ]; then #Backup
-  ps_add $1 $2 $3 $4
+  ps_backup $1 $2 $3 $4
 elif [ "$1" = "-l" ]; then #Listing
   ps_list $1 $2 $3 $4
 elif [ "$1" = "-a" ]; then #Adding a new language folder

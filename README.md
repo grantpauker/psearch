@@ -1,7 +1,7 @@
 # psearch
 A program to navigate your project folder <br />
 Requirements: <br />
-  Please specify your project folder and backup executable in the psearch file. The backup executable can be obtained from https://github.com/ruwix/project-backup<br />
+  Please specify your project folder and backup executable in the psearch file. For the backup executable, I recommend using https://transfer.sh/<br />
   To run, instead of typing "./psearch", use ". ./psearch", so that it will run in the current bash session <br />
   To add autocompletion and an alias for psearch, run the command:
   ```
@@ -28,5 +28,7 @@ Usage: <br />
   psearch -c [language] [project] [file]| Creates a new project in the given language with the given directory name and file name
   psearch -a [language] | Add a new language folder
   psearch -r [project]  | Deletes the specified project
+  psearch -b [project]  | Backsup your project folder
+
   psearch -help | Gives a list of commands
   ```
