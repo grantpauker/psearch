@@ -1,8 +1,23 @@
 _psearch()
 {
     project_folder='/home/god/projects/'
-    folders=`find $project_folder -maxdepth 2 -type d | grep -v .git| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
     local cur=${COMP_WORDS[COMP_CWORD]}
-    COMPREPLY=( $(compgen -W "-l -c -a -r -b -help languages $folders" -- $cur) )
+    local prev=${COMP_WORDS[COMP_CWORD-1]}
+    local all_options=()
+
+    if [ $COMP_CWORD -eq 1 ]; then
+      folders=`find $project_folder -maxdepth 2 -type d | grep -v .git| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
+      all_options+=( "-l -c -a -r -b -h ${folders[*]}" )
+    elif [ "$prev" == "-l" ]; then
+      folders=`find $project_folder -maxdepth 1 -type d | grep -v .git| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
+      all_options+=( "languages ${folders[*]}" )
+    elif [ "$prev" == "-c" ]; then
+      folders=`find $project_folder -maxdepth 1 -type d | grep -v .git| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
+      all_options+=( "${folders[*]}" )
+    elif [ "$prev" == "-r" ]; then
+      folders=`find $project_folder -maxdepth 2 -type d | grep -v .git| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
+      all_options+=( "${folders[*]}" )
+    fi
+    COMPREPLY=( $(compgen -W "$all_options" -- $cur) )
 }
 complete -F _psearch psearch
