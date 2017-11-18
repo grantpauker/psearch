@@ -115,7 +115,7 @@ ps_create(){
     go) touch $folder/$2/$3/$file_name.go
         ;;
     c++) touch $folder/$2/$3/$file_name.cpp
-	;;
+	       ;;
     esac
     echo "Created the project \"$2/$3/$file_name\""
     echo "Going to \"$2/$3\""
@@ -177,7 +177,8 @@ ps_remove(){
 }
 
 ps_search(){
-  found=`find $folder -type d | grep -v .git | grep './'$1'$'`
+  found=`find $folder -maxdepth 2 -regex ".*$1"  -type d | grep -v .git `
+  echo $found
   found=${found//[.]\//$folder/}
   len=`echo "$found"| wc -l`
   mapfile -t array <<< "$found"

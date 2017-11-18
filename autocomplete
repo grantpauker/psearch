@@ -1,7 +1,7 @@
 _psearch()
 {
     project_folder='/home/god/projects/'
-    folders=`find $project_folder -type d | grep -v .git| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
+    folders=`find $project_folder -maxdepth 2 -type d | grep -v .git| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
     local cur=${COMP_WORDS[COMP_CWORD]}
     COMPREPLY=( $(compgen -W "-l -c -a -r -b -help languages $folders" -- $cur) )
 }
