@@ -38,29 +38,24 @@ ps_list(){
     return
   fi
   if [ "$2" = "" ]; then
-    found=`find "$folder/$2" -maxdepth 2 -type d | grep -v .git`
+    found=`find "$folder/$2" -maxdepth 2 -mindepth 2 -type d | grep -v .git |cut -d/ -f5-`
     mapfile -t array <<< "$found"
     for item in ${array[@]:1}
     do
-      if [ "$(basename $(dirname $item))" != "projects" ]; then
-        item=$(basename $(dirname $item))/$(basename $item)
-        echo "$item"
-      fi
+      echo "$item"
     done
   elif [ "$2" = "languages" ]; then
-    found=`find "$folder" -maxdepth 1 -type d | grep -v .git`
+    found=`find "$folder" -maxdepth 1  -type d | grep -v .git|cut -d/ -f4-`
     mapfile -t array <<< "$found"
     for item in ${array[@]:1}
     do
-      item=$(basename $(dirname $item))/$(basename $item)
       echo "$item"
     done
   else
-    found=`find "$folder/$2" -maxdepth 1 -type d | grep -v .git`
+    found=`find "$folder/$2" -maxdepth 1 -mindepth 1 -type d | grep -v .git |cut -d/ -f5-`
     mapfile -t array <<< "$found"
     for item in ${array[@]:1}
     do
-      item=$(basename $(dirname $item))/$(basename $item)
       echo "$item"
     done
   fi
@@ -126,7 +121,7 @@ ps_create(){
 }
 
 ps_remove(){
-  found=`find $folder -type d | grep -v .git | grep './'$2'$'`
+  found=`find $folder -maxdepth 2 -type d | grep -v .git | grep './'$2'$'`
   found=${found//[.]\//$folder/}
   len=`echo "$found"| wc -l`
   mapfile -t array <<< "$found"
@@ -144,9 +139,6 @@ ps_remove(){
     done
     read -p "Selection: " choice
     choice=$((choice-1))
-    echo "Count: $choice"
-    found=${array[choice]}
-    echo "Found is: $found"
     read -p "Are you sure you want to delete \"$(basename $(dirname ${array[$choice]}))/$(basename ${array[$choice]})\" [y/n]: " are_you_sure
     if [ "$are_you_sure" = "y" ]; then
     echo "Deleting \"$(basename $(dirname ${array[$choice]}))/$(basename ${array[$choice]})\""
@@ -157,8 +149,8 @@ ps_remove(){
     fi
     return
     elif [ "$are_you_sure" = "n" ]; then
-    echo "Not deleting"
-    return
+      echo "Not deleting"
+      return
     fi
   else
     read -p "Are you sure you want to delete \"$(basename $(dirname $found))/$(basename $found)\" [y/n]: " are_you_sure
@@ -177,8 +169,7 @@ ps_remove(){
 }
 
 ps_search(){
-  found=`find $folder -maxdepth 2 -regex ".*$1"  -type d | grep -v .git `
-  echo $found
+  found=`find $folder -maxdepth 2 -regex ".*/$1"  -type d | grep -v .git`
   found=${found//[.]\//$folder/}
   len=`echo "$found"| wc -l`
   mapfile -t array <<< "$found"
