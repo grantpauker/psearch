@@ -126,9 +126,9 @@ ps_remove(){
   len=`echo "$found"| wc -l`
   mapfile -t array <<< "$found"
   if [ "$found" = "" ]; then
-  echo "No projects with name \"$2\" found"
-  echo "Try finding a project using \"psearch -l [language]\"..."
-  elif [ "$len" -gt "1" ]; then
+    echo "No projects with name \"$2\" found"
+    echo "Try finding a project using \"psearch -l [language]\"..."
+  elif [ $len -gt 1 ]; then
     echo "Multiple instances found, please select a language..."
     i=0
     for item in ${array[@]}
@@ -139,29 +139,40 @@ ps_remove(){
     done
     read -p "Selection: " choice
     choice=$((choice-1))
-    read -p "Are you sure you want to delete \"$(basename $(dirname ${array[$choice]}))/$(basename ${array[$choice]})\" [y/n]: " are_you_sure
+    read -p "Are you sure you want to delete \"$(basename $(dirname ${array[$choice]}))/$(basename ${array[$choice]})\" (y/n): " are_you_sure
     if [ "$are_you_sure" = "y" ]; then
-    echo "Deleting \"$(basename $(dirname ${array[$choice]}))/$(basename ${array[$choice]})\""
-
-    rm -rf $found
-    if [ "$PWD" = "$found" ]; then
-      cd $(dirname "$found")
-    fi
+      read -p "THIS WILL DELETE \"$(basename $(dirname ${array[$choice]}))/$(basename ${array[$choice]})\" (y/n): " are_you_sure
+      if [ "$are_you_sure" = "y" ]; then
+        echo "Deleting \"$(basename $(dirname ${array[$choice]}))/$(basename ${array[$choice]})\""
+        rm -rf ${array[choice]}
+        if [ "$PWD" = "$found" ]; then
+          cd $(dirname "$found")
+        fi
+      else
+        echo "Not deleting"
+        return
+      fi
     return
-    elif [ "$are_you_sure" = "n" ]; then
+    else
       echo "Not deleting"
       return
     fi
   else
-    read -p "Are you sure you want to delete \"$(basename $(dirname $found))/$(basename $found)\" [y/n]: " are_you_sure
+    read -p "Are you sure you want to delete \"$(basename $(dirname $found))/$(basename $found)\" (y/n): " are_you_sure
     if [ "$are_you_sure" = "y" ]; then
-      echo "Deleting \"$(basename $(dirname $found))/$(basename $found)\""
-      rm -rf $found
-      if [ "$PWD" = "$found" ]; then
-        cd $(dirname "$found")
-      fi
-      return
-    elif [ "$are_you_sure" = "n" ]; then
+      read -p "THIS WILL DELETE \"$(basename $(dirname ${array[$choice]}))/$(basename ${array[$choice]})\" (y/n): " are_you_sure
+        if [ "$are_you_sure" = "y" ]; then
+          echo "Deleting \"$(basename $(dirname $found))/$(basename $found)\""
+          rm -rf ${array[choice]}
+          if [ "$PWD" = "$found" ]; then
+            cd $(dirname "$found")
+          fi
+          return
+        else
+          echo "Not deleting"
+          return
+        fi
+    else
       echo "Not deleting"
       return
     fi
