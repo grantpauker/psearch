@@ -1,23 +1,29 @@
+#!/bin/bash
 _psearch()
 {
     project_folder='/home/god/projects/'
     local cur=${COMP_WORDS[COMP_CWORD]}
     local prev=${COMP_WORDS[COMP_CWORD-1]}
     local all_options=()
-
+    local cmd_options=("-l -c -a -r -b -h")
     if [ $COMP_CWORD -eq 1 ]; then
       folders=`find $project_folder -maxdepth 2 -type d | grep -v .git| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
-      all_options+=( "-l -c -a -r -b -h ${folders[*]}" )
+      folders="$(for l in ${folders[@]}; do echo $l; done | sort)"
+      cmd_options="$(for l in ${cmd_options[@]}; do echo $l; done | sort)"
+      all_options+=( "${cmd_options[*]} ${folders[*]}" )
     elif [ "$prev" == "-l" ]; then
       folders=`find $project_folder -maxdepth 1 -type d | grep -v .git| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
+      folders="$(for l in ${folders[@]}; do echo $l; done | sort)"
       all_options+=( "languages ${folders[*]}" )
     elif [ "$prev" == "-c" ]; then
       folders=`find $project_folder -maxdepth 1 -type d | grep -v .git| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
+      folders="$(for l in ${folders[@]}; do echo $l; done | sort)"
       all_options+=( "${folders[*]}" )
     elif [ "$prev" == "-r" ]; then
       folders=`find $project_folder -maxdepth 2 -type d | grep -v .git| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
+      folders="$(for l in ${folders[@]}; do echo $l; done | sort)"
       all_options+=( "${folders[*]}" )
     fi
-    COMPREPLY=( $(compgen -W "$all_options" -- $cur) )
-}
-complete -F _psearch psearch
+    COMPREPLY=( $(compgen  -W "$all_options" -- $cur) )
+} 
+complete -o nosort -F _psearch psearch
