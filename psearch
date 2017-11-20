@@ -15,21 +15,17 @@ fi
 ps_help(){
   echo "psearch is a program to naviagte your project folder: \"$folder\""
   echo "Here is a list of its commands:"
-  echo "  psearch [project]               |  Finds a project with the given name"
-  echo "                                  -  and goes to that directory"
-  echo "  psearch -l [language]           |  Lists all projects of a given language,"
-  echo "                                  -  leave blank to just list languages"
-  echo "  psearch -c [language] [project] |  Creates a new project in the given"
-  echo "             [file]               -  language with the given names"
-  echo "  psearch -a [language]           |  Add a new language folder"
-  echo "  psearch -r [project]            |  Remove a project folder"
-  echo "  psearch -b [project]            |  Backup your project folder"
-
-  echo "  psearch -help [language]        |  Brings up this message"
+  echo "  psearch [project]                                |  Finds a project with the given name and goes to that directory"
+  echo "  psearch -l, --list [language]                    |  Lists all projects of a given language, leave blank to just list languages"
+  echo "  psearch -c, --create [language] [project] [file] |  Creates a new project in the given language with the given name"
+  echo "  psearch -a, --add [language]                     |  Add a new language folder"
+  echo "  psearch -r, --remove [project]                   |  Remove a project folder"
+  echo "  psearch -b, --backup [project]                   |  Backup your project folder"
+  echo "  psearch -h, --help [language]                    |  Brings up this message" 
 }
 
-ps_backup(){
-  bash $backup_exec
+ps_usage(){
+  echo "Usage: psearch [-l, --list] [-c, --create] [-a, --add] [-r, --remove] [-b, --backup] [-h, --help]"
 }
 
 ps_list(){
@@ -60,6 +56,7 @@ ps_list(){
     done
   fi
 }
+
 ps_add(){
   if [ -d "$folder/$2" ]; then
     echo "The language \"$2\" already exists"
@@ -179,6 +176,10 @@ ps_remove(){
   fi
 }
 
+ps_backup(){
+  bash $backup_exec
+}
+
 ps_search(){
   found=`find $folder -maxdepth 2 -regex ".*/$1"  -type d | grep -v .git`
   found=${found//[.]\//$folder/}
@@ -207,18 +208,21 @@ ps_search(){
   fi
 }
 
-if [ "$1" = "-help" ]; then #Help
+if [ "$1" = "-h" ]  || [ "$1" = "--help" ]; then #Help
  ps_help $1 $2 $3 $4
-elif [ "$1" = "-b" ]; then #Backup
+elif [ "$1" = "-b" ] || [ "$1" = "--backup" ]; then #Backup
   ps_backup $1 $2 $3 $4
-elif [ "$1" = "-l" ]; then #Listing
+elif [ "$1" = "-l" ] || [ "$1" = "--list" ]; then #Listing
   ps_list $1 $2 $3 $4
-elif [ "$1" = "-a" ]; then #Adding a new language folder
+elif [ "$1" = "-a" ] || [ "$1" = "--add" ]; then #Adding a new language folder
   ps_add $1 $2 $3 $4
-elif [ "$1" = "-c" ]; then #Creating a new project
+elif [ "$1" = "-c" ] || [ "$1" = "--create" ]; then #Creating a new project
   ps_create $1 $2 $3 $4
-elif [ "$1" = "-r" ]; then #Removing a project
+elif [ "$1" = "-r" ] || [ "$1" = "--remove" ]; then #Removing a project
   ps_remove $1 $2 $3 $4
+elif [ "${1:0:1}" = "-" ]; then
+  echo "Invalid command: $1"
+  ps_usage
 elif [ "$1" != "" ]; then #Finding and going to a project
   ps_search $1 $2 $3 $4
 else #Lists a project if given no paramaters
