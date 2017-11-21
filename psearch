@@ -17,15 +17,16 @@ ps_help(){
   echo "Here is a list of its commands:"
   echo "  psearch [project]                                |  Finds a project with the given name and goes to that directory"
   echo "  psearch -l, --list [language]                    |  Lists all projects of a given language, leave blank to just list languages"
+  echo "  psearch -g, --get [project]                      |  Finds a project with the given name and copies the directory to the clipboard"
   echo "  psearch -c, --create [language] [project] [file] |  Creates a new project in the given language with the given name"
   echo "  psearch -a, --add [language]                     |  Add a new language folder"
   echo "  psearch -r, --remove [project]                   |  Remove a project folder"
   echo "  psearch -b, --backup [project]                   |  Backup your project folder"
-  echo "  psearch -h, --help [language]                    |  Brings up this message" 
+  echo "  psearch -h, --help [language]                    |  Brings up this message"
 }
 
 ps_usage(){
-  echo "Usage: psearch [-l, --list] [-c, --create] [-a, --add] [-r, --remove] [-b, --backup] [-h, --help]"
+  echo "Usage: psearch [-l, --list]  [-g, --get] [-c, --create] [-a, --add] [-r, --remove] [-b, --backup] [-h, --help]"
 }
 
 ps_list(){
@@ -185,10 +186,12 @@ ps_search(){
   found=${found//[.]\//$folder/}
   len=`echo "$found"| wc -l`
   mapfile -t array <<< "$found"
+
   if [ "$found" = "" ]; then
-  echo "No projects with name \"$1\" found"
-  echo "Try finding a project using \"psearch -l [language]\"..."
-  echo "Or create a new project using \"psearch -c [language] [name]\""
+    echo "No projects with name \"$1\" found"
+    echo "Try finding a project using \"psearch -l [language]\"..."
+    echo "Or create a new project using \"psearch -c [language] [name]\""
+    return 1
   elif [ "$len" -gt "1" ]; then
     echo "Multiple instances found, please select a language..."
     i=0
@@ -200,14 +203,25 @@ ps_search(){
     done
     read -p "Selection: " choice
     choice=$((choice-1))
-    echo "Going to \"$(basename $(dirname ${array[$choice]}))/$(basename ${array[$choice]})\""
-    cd ${array[$choice]}
+
+    ps_found="${array[$choice]}"
   else
-    echo "Going to \"$(basename $(dirname $found))/$(basename $found)\""
-    cd $found
+    ps_found="$found"
+  fi
+  return 0
+}
+ps_go(){
+  if ps_search $1 $2 $3 $4; then
+    echo "Going to \"$(basename $(dirname $ps_found))/$(basename $ps_found)\""
+    cd $ps_found
   fi
 }
-
+ps_get(){
+  if ps_search $1 $2 $3 $4; then
+    echo "Project \"$(basename $(dirname $ps_found))/$(basename $ps_found)\" copied to clipboard"
+    echo $ps_found | xclip -sel clip
+  fi
+}
 if [ "$1" = "-h" ]  || [ "$1" = "--help" ]; then #Help
  ps_help $1 $2 $3 $4
 elif [ "$1" = "-b" ] || [ "$1" = "--backup" ]; then #Backup
@@ -220,11 +234,13 @@ elif [ "$1" = "-c" ] || [ "$1" = "--create" ]; then #Creating a new project
   ps_create $1 $2 $3 $4
 elif [ "$1" = "-r" ] || [ "$1" = "--remove" ]; then #Removing a project
   ps_remove $1 $2 $3 $4
+elif [ "$1" = "-g" ] || [ "$1" = "--get" ]; then #Removing a project
+  ps_get $2 $3 $4
 elif [ "${1:0:1}" = "-" ]; then
   echo "Invalid command: $1"
   ps_usage
 elif [ "$1" != "" ]; then #Finding and going to a project
-  ps_search $1 $2 $3 $4
+  ps_go $1 $2 $3 $4
 else #Lists a project if given no paramaters
   ps_list $1 $2 $3 $4
 fi
