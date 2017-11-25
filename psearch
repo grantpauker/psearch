@@ -109,6 +109,7 @@ ps_create(){
         ;;
     c++) touch $folder/$2/$3/$file_name.cpp
 	       ;;
+    haskell) touch $folder/$2/$3/$file_name.hs
     esac
     echo "Created the project \"$2/$3/$file_name\""
     echo "Going to \"$2/$3\""
@@ -158,10 +159,10 @@ ps_remove(){
   else
     read -p "Are you sure you want to delete \"$(basename $(dirname $found))/$(basename $found)\" (y/n): " are_you_sure
     if [ "$are_you_sure" = "y" ]; then
-      read -p "THIS WILL DELETE \"$(basename $(dirname ${array[$choice]}))/$(basename ${array[$choice]})\" (y/n): " are_you_sure
+      read -p "THIS WILL DELETE \"$(basename $(dirname $found))/$(basename $found)\" (y/n): " are_you_sure
         if [ "$are_you_sure" = "y" ]; then
           echo "Deleting \"$(basename $(dirname $found))/$(basename $found)\""
-          rm -rf ${array[choice]}
+          rm -rf $found
           if [ "$PWD" = "$found" ]; then
             cd $(dirname "$found")
           fi
