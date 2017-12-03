@@ -1,13 +1,11 @@
 # psearch
 A program to navigate your project folder <br />
 Requirements: <br />
-  Please specify your project folder and backup executable in the psearch file. For the backup executable, I recommend using https://transfer.sh/<br />
-  To run, instead of typing "./psearch", use ". ./psearch", so that it will run in the current bash session <br />
-  To add autocompletion and an alias for psearch, run the command:
+  Initialize psearch by running the install file as follows:
   ```
-  echo "alias psearch='. [location-of-psearch-file]'" >> ~/.bashrc && file mv autocomplete /etc/bash_completion.d/psearch
+  chmod +x ./install
+  ./install
   ```
-  Make sure to specify your project folder in the psearch and autocomplete files
   Also, you projects folder should be in this format: <br />
   <pre>
     └── [project-folder]
