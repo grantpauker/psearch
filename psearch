@@ -37,7 +37,7 @@ ps_list(){
   if [ "$2" = "" ]; then
     found=`find "$folder/$2" -maxdepth 2 -mindepth 2 -type d | grep -v '\.git' |cut -d/ -f5-`
     mapfile -t array <<< "$found"
-    for item in ${array[@]:1}
+    for item in ${array[@]:0}
     do
       echo "$item"
     done
@@ -49,9 +49,10 @@ ps_list(){
       echo "$item"
     done
   else
-    found=`find "$folder/$2" -maxdepth 1 -mindepth 1 -type d | grep -v '\.git' |cut -d/ -f5-`
+    found=`find "$folder/$2" -maxdepth 1 -mindepth 1 -type d | grep -v '\.git' `
+    #|cut -d/ -f5-`
     mapfile -t array <<< "$found"
-    for item in ${array[@]:1}
+    for item in ${array[@]:0}
     do
       echo "$item"
     done
