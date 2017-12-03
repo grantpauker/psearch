@@ -35,21 +35,21 @@ ps_list(){
     return
   fi
   if [ "$2" = "" ]; then
-    found=`find "$folder/$2" -maxdepth 2 -mindepth 2 -type d | grep -v .git |cut -d/ -f5-`
+    found=`find "$folder/$2" -maxdepth 2 -mindepth 2 -type d | grep -v '\.git' |cut -d/ -f5-`
     mapfile -t array <<< "$found"
     for item in ${array[@]:1}
     do
       echo "$item"
     done
   elif [ "$2" = "languages" ]; then
-    found=`find "$folder" -maxdepth 1  -type d | grep -v .git|cut -d/ -f4-`
+    found=`find "$folder" -maxdepth 1  -type d | grep -v '\.git'|cut -d/ -f4-`
     mapfile -t array <<< "$found"
     for item in ${array[@]:1}
     do
       echo "$item"
     done
   else
-    found=`find "$folder/$2" -maxdepth 1 -mindepth 1 -type d | grep -v .git |cut -d/ -f5-`
+    found=`find "$folder/$2" -maxdepth 1 -mindepth 1 -type d | grep -v '\.git' |cut -d/ -f5-`
     mapfile -t array <<< "$found"
     for item in ${array[@]:1}
     do
@@ -120,7 +120,7 @@ ps_create(){
 }
 
 ps_remove(){
-  found=`find $folder -maxdepth 2 -type d | grep -v .git | grep './'$2'$'`
+  found=`find $folder -maxdepth 2 -type d | grep -v '\.git' | grep './'$2'$'`
   found=${found//[.]\//$folder/}
   len=`echo "$found"| wc -l`
   mapfile -t array <<< "$found"
@@ -183,7 +183,7 @@ ps_backup(){
 }
 
 ps_search(){
-  found=`find $folder -maxdepth 2 -regex ".*/$1"  -type d | grep -v .git`
+  found=`find $folder -maxdepth 2 -regex ".*/$1"  -type d | grep -v '\.git'`
   found=${found//[.]\//$folder/}
   len=`echo "$found"| wc -l`
   mapfile -t array <<< "$found"
