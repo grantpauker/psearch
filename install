@@ -1,0 +1,25 @@
+#!/bin/bash
+read -p "Project folder: " folder
+if grep 'alias .*\. .*psearch' ~/.bashrc > /dev/null; then
+  echo "Adding alias to bashrc"
+else
+  echo "Alias already added"
+fi
+folder=$(echo $folder | sed "s@~@$HOME@g")
+if [ ! -d $folder ]; then
+  echo "$folder is not a folder"
+  exit
+else
+  echo "Adding folder variable to files"
+fi
+folder=$(realpath $folder)
+depth=$(echo $folder | grep -o / | wc -l)
+depth=$(($depth))
+sed -i "s@folder\=\"\(.*\)\"@folder=\"$folder\"@g" psearch
+sed -i "s@depth\=\([0-9]*\)@depth=$depth@g" psearch
+
+sed -i "s@project_folder\=\"\(.*\)\"@project_folder=\"$folder\"@g" autocomplete
+sed -i "s@depth\=\([0-9]*\)@depth=$depth@g" autocomplete
+
+echo "Moving autocomplete to /etc/bash_completion.d/psearch"
+sudo cp autocomplete /etc/bash_completion.d/psearch
