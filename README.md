@@ -1,23 +1,24 @@
 # psearch
 A program to navigate your project folder <br />
 Requirements: <br />
-  Initialize psearch by running the install file as follows:
+  Initialize psearch by running the install file and resourcing ~/.bashrc:
   ```
   chmod +x ./install
   ./install
+  source ~/.bashrc
   ```
   Also, you projects folder should be in this format: <br />
   <pre>
     └── [project-folder]
         ├── [language1]
-        |   ├── [file1]
-        |   └── [file2]
+        |   ├── [project1]
+        |   └── [project2]
         ├── [language2]
-        |   ├── [file1]
-        |   ├── [file2]
-        |   └── [file3]
+        |   ├── [project1]
+        |   ├── [project2]
+        |   └── [project3]
         └── [language3]  
-            └── [file1]</pre>
+            └── [project1]</pre>
 
 Usage: <br />
   ```
@@ -27,6 +28,5 @@ Usage: <br />
   psearch -a [language] | Add a new language folder
   psearch -r [project]  | Deletes the specified project
   psearch -b [project]  | Backsup your project folder
-
   psearch -help | Gives a list of commands
   ```
