@@ -1,48 +1,48 @@
 #!/bin/bash
-dependency_check(){
-  dep=$1
-  for package in "${dep[@]}"; do
-    dpkg -s $package >/dev/null 2>&1
-    if [ $? -eq 0 ]; then
-      echo "$package already installed"
-    else
-      echo "$package not intalled, installing now..."
-    fi
-  done
-}
 dep=(xclip)
 echo "Checking dependencies..."
-dependency_check $dep
+for package in "${dep[@]}"; do
+  dpkg -s $package >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    echo "  $package already installed"
+  else
+    echo "  $package not intalled, installing now..."
+    sudo apt-get install $package
+  fi
+done
 
 
+while [ -z "$folder" ] || [ ! -d $folder ]; do
+  read -p "Project folder: " folder
+  folder=$(echo $folder | sed "s@~@$HOME@g")
+  if [ ! -d $folder ]; then
+    echo "  $folder is not a valid folder"
+  elif [ -z "$folder" ]; then
+    echo "  Please enter a folder"
+  else
+    echo "  Adding folder variable to files"
+    depth=$(echo $folder | grep -o / | wc -l)
+    depth=$(($depth))
+    sed -i "s@folder\=\"\(.*\)\"@folder=\"$folder\"@g" psearch
+    sed -i "s@depth\=\([0-9]*\)@depth=$depth@g" psearch
+  
+    sed -i "s@project_folder\=\"\(.*\)\"@project_folder=\"$folder\"@g" autocomplete
+    sed -i "s@depth\=\([0-9]*\)@depth=$depth@g" autocomplete
+    break
+  fi
+done
 
-read -p "Project folder: " folder
-folder=$(echo $folder | sed "s@~@$HOME@g")
-if [ ! -d $folder ]; then
-  echo "$folder is not a folder"
-  exit
-else
-  echo "Adding folder variable to files"
-  depth=$(echo $folder | grep -o / | wc -l)
-  depth=$(($depth))
-  sed -i "s@folder\=\"\(.*\)\"@folder=\"$folder\"@g" psearch
-  sed -i "s@depth\=\([0-9]*\)@depth=$depth@g" psearch
-
-  sed -i "s@project_folder\=\"\(.*\)\"@project_folder=\"$folder\"@g" autocomplete
-  sed -i "s@depth\=\([0-9]*\)@depth=$depth@g" autocomplete
-fi
-
-read -p "Backup executable (leave blank for none): " backup
-backup=$(echo $backup | sed "s@~@$HOME@g")
-if [ ! -e $backup ] && [ ! "$backup" == "" ]; then
-  echo "$backup is not a folder"
-  exit
-else
-  sed -i "s@backup_exec\=\"\(.*\)\"@backup_exec=\"$backup\"@g" psearch
-  echo "Adding backup variable to files"
-fi
-
-
+while [ -z "$backup" ] || [ ! -e $backup ] ; do
+  read -p "Backup executable (leave blank for none): " backup
+  backup=$(echo $backup | sed "s@~@$HOME@g")
+  if [ ! -e $backup ]; then
+    echo "  $backup is not a valid file"
+  else
+    echo "  Adding backup variable to files"
+    sed -i "s@backup_exec\=\"\(.*\)\"@backup_exec=\"$backup\"@g" psearch
+    break
+  fi
+done
 
 if ! grep 'alias .*\. .*psearch' ~/.bashrc > /dev/null; then
   echo "Adding alias to bashrc"
@@ -50,8 +50,6 @@ if ! grep 'alias .*\. .*psearch' ~/.bashrc > /dev/null; then
 else
   echo "Alias already added to bashrc"
 fi
-
-
 
 echo "Moving autocomplete to /etc/bash_completion.d/psearch"
 sudo cp autocomplete /etc/bash_completion.d/psearch
