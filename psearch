@@ -2,12 +2,12 @@
 folder="/home/god/projects" #Your project folder
 depth=3
 backup_exec="/home/god/backups/backup"
-basefolder=$(basename $folder)
-dirfolder=$(dirname $folder)
-if [ "$folder" = "" ]; then
-  echo "Please specify a project folder"
+if [ ! -d "$folder" ]; then
+  echo "No project folder specified or it does not exist. Please run install file"
   return
 fi
+basefolder=$(basename $folder)
+dirfolder=$(dirname $folder)
 
 ps_help(){
   echo "psearch is a program to naviagte your project folder: \"$folder\""
