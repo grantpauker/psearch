@@ -9,24 +9,24 @@ _psearch()
     local all_options=()
     local cmd_options=("-l -g -c -a -r -b -h")
     if [ $COMP_CWORD -eq 1 ]; then
-	    folders=`find $project_folder -maxdepth $((depth+1)) -type d | grep -v '\.git'| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
+	    folders=`find $project_folder -maxdepth $((depth-1)) -type d | grep -v '\.git'| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
       folders="$(for l in ${folders[@]}; do echo $l; done | sort)"
       cmd_options="$(for l in ${cmd_options[@]}; do echo $l; done | sort)"
       all_options+=( "$base_folder ${cmd_options[*]} ${folders[*]}" )
     elif [ "$prev" == "-l" ] || [ "$prev" == "--list" ]; then
-      folders=`find $project_folder -maxdepth $depth -type d | grep -v '\.git'| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
+      folders=`find $project_folder -maxdepth $((depth-2)) -type d | grep -v '\.git'| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
       folders="$(for l in ${folders[@]}; do echo $l; done | sort)"
       all_options+=( "languages ${folders[*]}" )
     elif [ "$prev" == "-g" ] || [ "$prev" == "--get" ]; then
-	    folders=`find $project_folder -maxdepth $((depth+1)) -type d | grep -v '\.git'| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
+	    folders=`find $project_folder -maxdepth $((depth-1)) -type d | grep -v '\.git'| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
       folders="$(for l in ${folders[@]}; do echo $l; done | sort)"
       all_options+=( "$base_folder ${folders[*]}" )
     elif [ "$prev" == "-c" ] || [ "$prev" == "--create" ]; then
-      folders=`find $project_folder -maxdepth $depth -type d | grep -v '\.git'| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
+      folders=`find $project_folder -maxdepth $((depth-2)) -type d | grep -v '\.git'| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
       folders="$(for l in ${folders[@]}; do echo $l; done | sort)"
       all_options+=( "${folders[*]}" )
     elif [ "$prev" == "-r" ] || [ "$prev" == "--remove" ]; then
-	    folders=`find $project_folder -maxdepth $((depth+1)) -type d | grep -v '\.git'| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
+	    folders=`find $project_folder -maxdepth $((depth-1)) -type d | grep -v '\.git'| sed 's/.*\///'|sed ':a;N;$!ba;s/\n/ /g'`
       folders="$(for l in ${folders[@]}; do echo $l; done | sort)"
       all_options+=( "${folders[*]}" )
     fi
