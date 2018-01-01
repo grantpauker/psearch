@@ -39,18 +39,18 @@ ps_list(){
       echo "$item"
     done
   elif [ "$2" = "languages" ]; then
-	  found=`find "$folder" -maxdepth 1  -type d | grep -v '\.git'|cut -d/ -f$((depth+4))-`
+	  found=`find "$folder" -maxdepth 1  -type d | grep -v '\.git'|cut -d/ -f$((depth+2))-`
     mapfile -t array <<< "$found"
     for item in ${array[@]:1}
     do
-      echo "$item"
+      echo "$basefolder/$item"
     done
   else
-	  found=`find "$folder/$2" -maxdepth 1 -mindepth 1 -type d | grep -v '\.git' |cut -d/ -f$((depth+4))-`
+	  found=`find "$folder/$2" -maxdepth 1 -mindepth 1 -type d | grep -v '\.git' |cut -d/ -f$((depth+3))-`
     mapfile -t array <<< "$found"
     for item in ${array[@]:0}
     do
-      echo "$item"
+      echo "$2/$item"
     done
   fi
 }
